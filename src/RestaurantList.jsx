@@ -1,40 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import RestaurantCard from './RestaurantCard';
-import './RestaurantList.css'; // Import your CSS file
+import './RestaurantList.css';
+
+// Paikalliset kuvat id:n mukaan
+const localImages = {
+  1: '/images/cheese_burger.jpg',
+  2: '/images/cheese_burger.jpg',
+  // Lisää id-kuvaparit tarvittaessa
+};
 
 function RestaurantList() {
+  const [restaurants, setRestaurants] = useState([]);
 
-  const [restaurants, setRestaurants] = useState([
-    {
-      id: 1,
-      imageUrl: '/images/cheese_burger.jpg',
-      name: 'Känttylä',
-      averageRating: 4.5,
-      reviewCount: 4,
-      cuisine: 'Italian',
-      priceRange: '$$',
-      address: 'Jokiväylä 11, 96300 ROVANIEMI'
-    },
-    {
-        id: 2,
-        imageUrl: '/images/cheese_burger.jpg',
-        name: 'Känttylä 2',
-        averageRating: 5,
-        reviewCount: 4,
-        cuisine: 'Italian',
-        priceRange: '$$',
-        address: 'Kansankatu 3'
-      }
-  ]) 
+  useEffect(() => {
+    fetch('http://127.0.0.1:8000/api/restaurants/ratings')
+      .then(res => res.json())
+      .then(data => {
+        const enriched = data.map(restaurant => ({
+          ...restaurant,
+          imageUrl: localImages[restaurant.id] || '/images/default.jpg'
+        }));
+        setRestaurants(enriched);
+      })
+      .catch(err => {
+        console.error('Error fetching restaurants:', err);
+      });
+  }, []);
 
-  
-    
   return (
     <div className="restaurant-list-container">
       <div className="side-panel">
         <h3>Actions</h3>
         <button onClick={() => {}}>Add Rating</button>
-        {/* Add more action buttons here */}
       </div>
       <div className="restaurant-list">
         {restaurants.map((restaurant) => (
