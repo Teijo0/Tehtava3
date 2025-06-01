@@ -12,6 +12,26 @@ function RatingsByRestaurant() {
       .catch(error => console.error("Virhe haettaessa arvioita:", error));
   }, [id]);
 
+  // Poistofunktio
+  const handleDelete = (ratingId) => {
+    if (!window.confirm('Haluatko varmasti poistaa arvion?')) return;
+
+    fetch(`http://127.0.0.1:8000/api/restaurants/${id}/ratings/{ratingId}`, {
+      method: 'DELETE',
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Poisto epäonnistui');
+        }
+        // Päivitä ratings ilman poistettua arviota
+        setRatings(ratings.filter(rating => rating.id !== ratingId));
+      })
+      .catch(error => {
+        console.error('Virhe poistaessa arviota:', error);
+        alert('Arvion poisto epäonnistui.');
+      });
+  };
+
   return (
     <div>
       <h2>Ravintolan {id} arviot</h2>
@@ -25,6 +45,7 @@ function RatingsByRestaurant() {
               <p><strong>Arvosana:</strong> {rating.value} / 5</p>
               <p><strong>Kommentti:</strong> {rating.description}</p>
               <p><strong>Päivämäärä:</strong> {new Date(rating.date_rated).toLocaleString()}</p>
+              <button onClick={() => handleDelete(rating.id)}>Poista arvio</button>
             </div>
           );
         })
